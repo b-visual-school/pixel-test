@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script
+    src="https://code.jquery.com/jquery-3.6.0.slim.js"
+    integrity="sha256-HwWONEZrpuoh951cQD1ov2HUK5zA5DwJ1DNUXaM6FsY="
+    crossorigin="anonymous"></script>
+  <script type="text/JavaScript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.js" ></script>
+
+  <title>Оценка уроков</title>
+</head>
+
+<style>
+
+    /* Кнопка */
+    .wrap-input-file {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    #file-label {
+        margin-top: 20px;
+        background: #ff3366;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        text-align: center;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        text-transform: uppercase;
+        width: 300px;
+        transition-property: all;
+        transition-duration: 1s;
+    }
+
+    #file-label:hover {
+        color: white;
+    }
+
+    .inputfile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    /* ===== */
+    .wrap {
+        width: fit-content;
+        margin: 50px auto;
+        font-size: 18px;
+    }
+
+    table {
+        display: none;
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+
+    h1 {
+        margin: 25px;
+        text-align: center;
+    }
+
+    h4 {
+        background: #fdfdfd !important;
+    }
+
+    .table-title {
+        /*margin-top: 20px;*/
+        /*margin-bottom: 20px;*/
+    }
+
+    .table th {
+        font-size: 22px;
+    }
+
+    .table td:not(:nth-child(1)) {
+        vertical-align: middle;
+        text-align: center;
+        width: 110px;
+    }
+
+    .table td:nth-child(1) {
+        vertical-align: middle;
+        text-align: center;
+        width: 400px;
+    }
+
+
+
+    .training {
+        font-size: 20px;
+        font-weight: bold;
+        background: #fdfdfd;
+        color: #495057;
+    }
+
+    .lessons {
+        display: none;
+    }
+
+</style>
+
+<body>
+<div class="wrap">
+
+  <div class="wrap-input-file">
+    <input name="file" type="file" id="file" class="inputfile">
+    <label for="file" id="file-label">Загрузить файл</label>
+  </div>
+
+
+
+  <table class="table table-bordered" style="display: none;">
+    <thead>
+    <tr>
+      <th class="text-center">Название тренинга</th>
+      <th class="text-center" colspan="2" style="background-color: rgba(40, 167, 69, 0.7);">Сторонники</th>
+      <th class="text-center" colspan="2" style="background-color: rgba(255, 193, 7, 0.7);">Нейтралы</th>
+      <th class="text-center" colspan="2" style="background-color: rgba(220, 53, 69, 0.7);">Критики</th>
+      <th class="text-center" colspan="2" style="background-color: rgba(0, 123, 255, 0.7);">NPSP</th>
+    </tr>
+    </thead>
+
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<script>
+    function createTable(data) {
+
+        data.forEach((training, index) => {
+            $('tbody').append(`
+              <tr class="training" id="${index + 1}">
+                <td>${training.name}</td>
+                <td>${training.supportCount}</td>
+                <td>${training.supportShare}%</td>
+                <td>${training.neutralCount}</td>
+                <td>${training.neutralShare}%</td>
+                <td>${training.criticCount}</td>
+                <td>${training.criticShare}%</td>
+                <td>${training.NPSPCount}</td>
+                <td>${training.NPSPShare}%</td>
+              </tr>
+            `);
+
+            const keys = Object.keys(training.lessons).sort();
+            console.log(keys)
+
+            keys.forEach(item => {
+
+          //  });
+
+           // for (let item in training.lessons) {
+
+                let lesson = training.lessons[item];
+                $('tbody').append(`
+             <tr class="lessons lessons-${index + 1}">
+                <td style="text-align: left">${lesson.name}</td>
+                <td>${lesson.supportCount}</td>
+                <td>${lesson.supportShare}%</td>
+                <td>${lesson.neutralCount}</td>
+                <td>${lesson.neutralShare}%</td>
+                <td>${lesson.criticCount}</td>
+                <td>${lesson.criticShare}%</td>
+                <td>${lesson.NPSPCount}</td>
+                <td>${lesson.NPSPShare}%</td>
+              </tr>
+                `);
+            });
+        });
+    }
+
+    function createObj(name, obj) {
+
+        if (typeof obj.name === 'undefined') {
+            obj.name = name;
+        }
+
+        if (typeof obj.supportCount === 'undefined') {
+            obj.supportCount = 0;
+        }
+        if (typeof obj.supportShare === 'undefined') {
+            obj.supportShare = 0;
+        }
+        if (typeof obj.neutralCount === 'undefined') {
+            obj.neutralCount = 0;
+        }
+        if (typeof obj.neutralShare === 'undefined') {
+            obj.neutralShare = 0;
+        }
+        if (typeof obj.criticCount === 'undefined') {
+            obj.criticCount = 0;
+        }
+        if (typeof obj.criticShare === 'undefined') {
+            obj.criticShare = 0;
+        }
+        if (typeof obj.NPSPCount === 'undefined') {
+            obj.NPSPCount = 0;
+        }
+        if (typeof obj.NPSPShare === 'undefined') {
+            obj.NPSPShare = 0;
+        }
+
+        return obj;
+    }
+
+    // Создает объект из одного курса
+    function createObjCourse(courseName, data) {
+        let courseObj = {};
+        let course = data.filter(course => course[5] === courseName && course[6] !== '');
+        let allCount = course.length;
+
+        courseObj = createObj(courseName, courseObj);
+
+        if (typeof courseObj.lessons === 'undefined') {
+            courseObj.lessons = {};
+        }
+
+        // Получаем уроки
+        let lessonNames = [];
+        for (let i = 0; i < course.length; i++) {
+            lessonNames.push(course[i][6])
+        }
+
+        // получаем уникальные имена уроков
+        lessonNames = [...new Set(lessonNames)].filter(Boolean);
+       // console.log(lessonNames)
+
+        lessonNames.forEach((lessonName) => {
+            courseObj.lessons[lessonName] = {};
+        })
+
+        course.forEach((item) => {
+            let grade = item[4];
+            let lesson = item[6];
+
+            courseObj.lessons[lesson] = createObj(lesson, courseObj.lessons[lesson]);
+
+            if (grade >= 9) {
+                courseObj.supportCount++;
+                courseObj.lessons[lesson].supportCount++;
+            } else if (grade >= 7) {
+                courseObj.neutralCount++;
+                courseObj.lessons[lesson].neutralCount++;
+            } else {
+                courseObj.criticCount++;
+                courseObj.lessons[lesson].criticCount++;
+            }
+
+            let allLessonCount = courseObj.lessons[lesson].supportCount + courseObj.lessons[lesson].neutralCount + courseObj.lessons[lesson].criticCount;
+
+            courseObj.lessons[lesson].NPSPCount = allLessonCount;
+
+            courseObj.lessons[lesson].supportShare = truncated(courseObj.lessons[lesson].supportCount / allLessonCount * 100);
+            courseObj.lessons[lesson].neutralShare = truncated(courseObj.lessons[lesson].neutralCount / allLessonCount * 100);
+            courseObj.lessons[lesson].criticShare = truncated(courseObj.lessons[lesson].criticCount / allLessonCount * 100);
+            courseObj.lessons[lesson].NPSPShare = truncated(courseObj.lessons[lesson].supportShare - courseObj.lessons[lesson].criticShare);
+
+        });
+
+        courseObj.supportShare = truncated(courseObj.supportCount / allCount * 100);
+        courseObj.neutralShare = truncated(courseObj.neutralCount / allCount * 100);
+        courseObj.criticShare = truncated(courseObj.criticCount / allCount * 100);
+        courseObj.NPSPShare = truncated(courseObj.supportShare - courseObj.criticShare);
+
+        courseObj.NPSPCount = allCount;
+
+        // сортировка
+
+       // console.log(courseObj)
+
+        return courseObj;
+    }
+
+    function truncated(num) {
+        return Math.trunc(num * 100) / 100;
+    }
+
+    // создаем массив из курсов
+    const createCourseArr= (data) => {
+        let courseNames = [];
+        let courseArr = [];
+
+        for (let i = 0; i < data.length; i++) {
+            courseNames.push(data[i][5])
+        }
+
+        // получаем уникальные имена курсов
+        courseNames = [...new Set(courseNames)].filter(Boolean);
+
+        courseNames.forEach((courseName) => {
+            courseArr.push(createObjCourse(courseName, data));
+        })
+
+        return courseArr;
+    }
+
+    function removeDuplicates(data) {
+        let uniqueData = [];
+
+        data.sort(function (a, b) {
+            let userName = 2;
+            let lesson = 6;
+
+            if (a[userName] > b[userName]) return 1;
+            if (a[userName] < b[userName]) return -1;
+            if (a[userName] === b[userName]) {
+                if (a[lesson] > b[lesson]) return 1;
+                if (a[lesson] < b[lesson]) return -1;
+                return 0;
+            }
+        });
+
+        uniqueData.push(data[0]);
+
+        for (let i = 1; i < data.length; i++) {
+            let email = 3;
+            let course = 5;
+            let lesson = 6;
+
+            if (data[i][email] + data[i][course] + data[i][lesson] !== data[i - 1][email] + data[i - 1][course] + data[i - 1][lesson]) {
+                uniqueData.push(data[i]);
+            }
+        }
+
+        uniqueData.sort(function (a, b) {
+            let date = 1;
+
+            return Date.parse(a[date]) - Date.parse(b[date])
+        })
+
+        return uniqueData;
+    }
+
+    $(document).on('change', 'input[type="file"]', function () {
+        $("#file").parse({
+            config: {
+                complete: function(results, file) {
+                    let data = results.data;
+                    data.shift();
+                    console.log(data[0])
+                    // Удаляем дубликаты
+                    data = removeDuplicates(data);
+
+
+                    let resultArr = createCourseArr(data)
+
+                    createTable(resultArr);
+
+                    $('.table').show(500);
+                    $('.wrap-input-file').hide(500);
+
+                    $('.training').click(function (e) {
+                        $(`.lessons-${this.id}`).toggle(500);
+                       // console.log(this.id)
+                    })
+
+
+                }
+            },
+        });
+
+    });
+
+
+</script>
+</body>
+</html>
